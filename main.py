@@ -155,6 +155,11 @@ def handle_payment(call):
     else:
         amount = "20.00"  # Значение по умолчанию
 
+    # Проверка на наличие учетных данных PayPal
+    if not all([PAYPAL_API_USERNAME, PAYPAL_API_PASSWORD, PAYPAL_API_SIGNATURE]):
+        bot.send_message(call.message.chat.id, "Ошибка: учетные данные PayPal не найдены. Пожалуйста, проверьте настройки.")
+        return
+
     # PayPal API URL для тестовой среды
     url = "https://api-3t.sandbox.paypal.com/nvp"
 
@@ -168,12 +173,14 @@ def handle_payment(call):
         'PAYMENTREQUEST_0_PAYMENTACTION': 'Sale',
         'PAYMENTREQUEST_0_AMT': amount,
         'PAYMENTREQUEST_0_CURRENCYCODE': 'USD',
-        'RETURNURL': 'https://example.com/success',  # Ссылка для перенаправления после успешной оплаты
-        'CANCELURL': 'https://example.com/cancel',  # Ссылка для перенаправления при отмене
+        'RETURNURL': 'https://google.com',
+        'CANCELURL': 'https://google.com',
     }
 
     # Выполняем POST-запрос к PayPal API
+    print("Отправляем запрос на PayPal с параметрами:", params)
     response = requests.post(url, data=urlencode(params))
+    print(f"Ответ от PayPal: {response.status_code}, {response.text}")
 
     # Обрабатываем ответ от PayPal
     if response.status_code == 200:
@@ -183,7 +190,9 @@ def handle_payment(call):
             payment_url = f"https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token={token}"
             bot.send_message(call.message.chat.id, f"Перейдите по ссылке для оплаты: {payment_url}")
         else:
-            bot.send_message(call.message.chat.id, "Произошла ошибка при создании платежа. Попробуйте позже.")
+            error_message = response_data.get('L_LONGMESSAGE0', 'Произошла ошибка при создании платежа. Попробуйте позже.')
+            print(f"Ошибка от PayPal: {error_message}")
+            bot.send_message(call.message.chat.id, f"Ошибка: {error_message}")
     else:
         bot.send_message(call.message.chat.id, "Произошла ошибка при подключении к PayPal. Попробуйте позже.")
 
