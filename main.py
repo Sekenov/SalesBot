@@ -6,15 +6,15 @@ from urllib.parse import urlencode
 import time
 
 # Создаем экземпляр бота
-bot = telebot.TeleBot('YOUR_TELEGRAM_BOT_TOKEN')
+bot = telebot.TeleBot('8077962203:AAHHndkIuMJz__r2nOimrh2CGG8vS8OLCDo')
 
 # Словарь для хранения данных пользователей
 user_data = {}
 
 # PayPal API credentials
-PAYPAL_API_USERNAME = os.getenv('PAYPAL_API_USERNAME')
-PAYPAL_API_PASSWORD = os.getenv('PAYPAL_API_PASSWORD')
-PAYPAL_API_SIGNATURE = os.getenv('PAYPAL_API_SIGNATURE')
+PAYPAL_API_USERNAME = os.getenv('raiymbektemirlan25_api1.gmail.com')
+PAYPAL_API_PASSWORD = os.getenv('Y8UCSD7KDFWX8EC9')
+PAYPAL_API_SIGNATURE = os.getenv('A5iODrqHuFsOLjaOMamc1met2hvmA72zj1J3CZQBJanYcEKyG1xNBrsG')
 
 # Обработчик команды /start
 @bot.message_handler(commands=['start'])
