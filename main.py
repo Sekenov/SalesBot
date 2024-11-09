@@ -161,7 +161,7 @@ def handle_payment(call):
         return
 
     # PayPal API URL для тестовой среды
-    url = "https://api-3t.sandbox.paypal.com/nvp"
+    url = "https://api-3t.paypal.com/nvp"
 
     # Параметры для создания платежного запроса
     params = {
