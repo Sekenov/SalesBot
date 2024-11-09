@@ -161,7 +161,7 @@ def handle_payment(call):
         return
 
     # PayPal API URL для тестовой среды
-    url = "https://api-3t.paypal.com/nvp"
+    url = "https://api-3t.sandbox.paypal.com/nvp"
 
     # Параметры для создания платежного запроса
     params = {
@@ -173,14 +173,12 @@ def handle_payment(call):
         'PAYMENTREQUEST_0_PAYMENTACTION': 'Sale',
         'PAYMENTREQUEST_0_AMT': amount,
         'PAYMENTREQUEST_0_CURRENCYCODE': 'USD',
-        'RETURNURL': 'https://google.com',
-        'CANCELURL': 'https://google.com',
+        'RETURNURL': 'https://google.com',       # Замените на рабочую ссылку после успешной оплаты
+        'CANCELURL': 'https://google.com',       # Замените на рабочую ссылку при отмене оплаты
     }
 
     # Выполняем POST-запрос к PayPal API
-    print("Отправляем запрос на PayPal с параметрами:", params)
     response = requests.post(url, data=urlencode(params))
-    print(f"Ответ от PayPal: {response.status_code}, {response.text}")
 
     # Обрабатываем ответ от PayPal
     if response.status_code == 200:
@@ -191,7 +189,6 @@ def handle_payment(call):
             bot.send_message(call.message.chat.id, f"Перейдите по ссылке для оплаты: {payment_url}")
         else:
             error_message = response_data.get('L_LONGMESSAGE0', 'Произошла ошибка при создании платежа. Попробуйте позже.')
-            print(f"Ошибка от PayPal: {error_message}")
             bot.send_message(call.message.chat.id, f"Ошибка: {error_message}")
     else:
         bot.send_message(call.message.chat.id, "Произошла ошибка при подключении к PayPal. Попробуйте позже.")
