@@ -1,13 +1,20 @@
+import os
+import requests
 import telebot
 from telebot import types
+from urllib.parse import urlencode
 import time
 
 # Создаем экземпляр бота
-bot = telebot.TeleBot('8077962203:AAHHndkIuMJz__r2nOimrh2CGG8vS8OLCDo')
+bot = telebot.TeleBot('YOUR_TELEGRAM_BOT_TOKEN')
 
 # Словарь для хранения данных пользователей
 user_data = {}
 
+# PayPal API credentials
+PAYPAL_API_USERNAME = os.getenv('PAYPAL_API_USERNAME')
+PAYPAL_API_PASSWORD = os.getenv('PAYPAL_API_PASSWORD')
+PAYPAL_API_SIGNATURE = os.getenv('PAYPAL_API_SIGNATURE')
 
 # Обработчик команды /start
 @bot.message_handler(commands=['start'])
@@ -22,7 +29,6 @@ def start(message):
                      "Привет! Я бот, который поможет вам выбрать курс и оформить оплату. Нажмите 'Start', чтобы начать.",
                      reply_markup=markup)
 
-
 # Обработчик нажатия на кнопку "Start"
 @bot.callback_query_handler(func=lambda call: call.data == "start")
 def handle_start(call):
@@ -36,7 +42,6 @@ def handle_start(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="Из какой вы страны? Это нужно, чтобы показать цену курса в вашей валюте.",
                           reply_markup=markup)
-
 
 # Обработчик выбора страны
 @bot.callback_query_handler(func=lambda call: call.data.startswith("country_"))
@@ -58,7 +63,6 @@ def handle_country(call):
                           text=f"Отлично, вы выбрали {country}. Если у вас есть вопросы, нажмите кнопку 'Вопросы'. Либо можете перейти к выбору курсов.",
                           reply_markup=markup)
 
-
 # Обработчик кнопки "Вопросы"
 @bot.callback_query_handler(func=lambda call: call.data == "questions")
 def questions(call):
@@ -77,7 +81,6 @@ def questions(call):
 
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="Выберите ваш вопрос:", reply_markup=markup)
-
 
 # Обработчик ответов на вопросы
 @bot.callback_query_handler(func=lambda call: call.data.startswith("question_"))
@@ -98,7 +101,6 @@ def handle_questions(call):
     bot.send_message(call.message.chat.id, "Если хотите перейти к выбору курсов, нажмите кнопку ниже.",
                      reply_markup=markup)
 
-
 # Обработчик нажатия на "Перейти к курсам"
 @bot.callback_query_handler(func=lambda call: call.data == "courses")
 def handle_courses(call):
@@ -110,7 +112,6 @@ def handle_courses(call):
 
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="Выберите курс:", reply_markup=markup)
-
 
 # Обработчик выбора курса
 @bot.callback_query_handler(func=lambda call: call.data.startswith("course_"))
@@ -137,25 +138,53 @@ def handle_selected_course(call):
     markup.add(btn_pay)
     bot.send_message(call.message.chat.id, "Если хотите купить этот курс, нажмите 'Оплатить'.", reply_markup=markup)
 
-
 # Обработчик нажатия на "Оплатить"
 @bot.callback_query_handler(func=lambda call: call.data == "pay")
 def handle_payment(call):
     # Получение страны пользователя
     country = user_data.get(call.message.chat.id, {}).get("country", "Казахстан")
 
-    # В зависимости от страны показываем цену
+    # В зависимости от страны показываем сумму в USD (так как PayPal работает с USD)
     if country == "Казахстан":
-        price = "20,000 тг"
+        amount = "20.00"
     elif country == "Россия":
-        price = "3900 рублей"
+        amount = "50.00"
     elif country == "Азербайджан":
-        price = "68 манат"
+        amount = "30.00"
     else:
-        price = "20,000 тг"  # Значение по умолчанию
+        amount = "20.00"  # Значение по умолчанию
 
-    bot.send_message(call.message.chat.id, f"💵 Стоимость курса: {price}. Курс был оплачен. Спасибо!")
+    # PayPal API URL для тестовой среды
+    url = "https://api-3t.sandbox.paypal.com/nvp"
 
+    # Параметры для создания платежного запроса
+    params = {
+        'USER': PAYPAL_API_USERNAME,
+        'PWD': PAYPAL_API_PASSWORD,
+        'SIGNATURE': PAYPAL_API_SIGNATURE,
+        'METHOD': 'SetExpressCheckout',
+        'VERSION': '204.0',
+        'PAYMENTREQUEST_0_PAYMENTACTION': 'Sale',
+        'PAYMENTREQUEST_0_AMT': amount,
+        'PAYMENTREQUEST_0_CURRENCYCODE': 'USD',
+        'RETURNURL': 'https://example.com/success',  # Ссылка для перенаправления после успешной оплаты
+        'CANCELURL': 'https://example.com/cancel',  # Ссылка для перенаправления при отмене
+    }
+
+    # Выполняем POST-запрос к PayPal API
+    response = requests.post(url, data=urlencode(params))
+
+    # Обрабатываем ответ от PayPal
+    if response.status_code == 200:
+        response_data = dict(x.split('=') for x in response.text.split('&'))
+        if response_data.get('ACK') == 'Success':
+            token = response_data.get('TOKEN')
+            payment_url = f"https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token={token}"
+            bot.send_message(call.message.chat.id, f"Перейдите по ссылке для оплаты: {payment_url}")
+        else:
+            bot.send_message(call.message.chat.id, "Произошла ошибка при создании платежа. Попробуйте позже.")
+    else:
+        bot.send_message(call.message.chat.id, "Произошла ошибка при подключении к PayPal. Попробуйте позже.")
 
 # Запуск бота
 bot.polling(none_stop=True)
