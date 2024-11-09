@@ -1,5 +1,6 @@
 import telebot
 from telebot import types
+import time
 
 # Создаем экземпляр бота
 bot = telebot.TeleBot('8077962203:AAHHndkIuMJz__r2nOimrh2CGG8vS8OLCDo')
@@ -13,7 +14,7 @@ user_data = {}
 def start(message):
     # Создаем кнопку "Start"
     markup = types.InlineKeyboardMarkup()
-    btn_start = types.InlineKeyboardButton("Start", callback_data="start")
+    btn_start = types.InlineKeyboardButton("🚀 Start", callback_data="start")
     markup.add(btn_start)
 
     # Отправляем приветственное сообщение с кнопкой "Start"
@@ -27,14 +28,14 @@ def start(message):
 def handle_start(call):
     # Приветствие и вопрос о стране
     markup = types.InlineKeyboardMarkup()
-    btn_kz = types.InlineKeyboardButton("Казахстан", callback_data="country_kz")
-    btn_ru = types.InlineKeyboardButton("Россия", callback_data="country_ru")
-    btn_az = types.InlineKeyboardButton("Азербайджан", callback_data="country_az")
+    btn_kz = types.InlineKeyboardButton("🇰🇿 Казахстан", callback_data="country_kz")
+    btn_ru = types.InlineKeyboardButton("🇷🇺 Россия", callback_data="country_ru")
+    btn_az = types.InlineKeyboardButton("🇦🇿 Азербайджан", callback_data="country_az")
     markup.add(btn_kz, btn_ru, btn_az)
 
-    bot.send_message(call.message.chat.id,
-                     "Из какой вы страны? Это нужно, чтобы показать цену курса в вашей валюте.",
-                     reply_markup=markup)
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                          text="Из какой вы страны? Это нужно, чтобы показать цену курса в вашей валюте.",
+                          reply_markup=markup)
 
 
 # Обработчик выбора страны
@@ -49,13 +50,13 @@ def handle_country(call):
 
     # Отправляем сообщение с информацией и кнопками "Вопросы" и "Перейти к курсам"
     markup = types.InlineKeyboardMarkup()
-    btn_questions = types.InlineKeyboardButton("Вопросы", callback_data="questions")
-    btn_courses = types.InlineKeyboardButton("Перейти к курсам", callback_data="courses")
+    btn_questions = types.InlineKeyboardButton("❓ Вопросы", callback_data="questions")
+    btn_courses = types.InlineKeyboardButton("📚 Перейти к курсам", callback_data="courses")
     markup.add(btn_questions, btn_courses)
 
-    bot.send_message(call.message.chat.id,
-                     f"Отлично, вы выбрали {country}. Если у вас есть вопросы, нажмите кнопку 'Вопросы'. Либо можете перейти к выбору курсов.",
-                     reply_markup=markup)
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                          text=f"Отлично, вы выбрали {country}. Если у вас есть вопросы, нажмите кнопку 'Вопросы'. Либо можете перейти к выбору курсов.",
+                          reply_markup=markup)
 
 
 # Обработчик кнопки "Вопросы"
@@ -68,9 +69,12 @@ def questions(call):
     btn_q3 = types.InlineKeyboardButton("Есть ли поддержка после покупки?", callback_data="question_3")
     btn_q4 = types.InlineKeyboardButton("Можно ли вернуть деньги?", callback_data="question_4")
     btn_q5 = types.InlineKeyboardButton("Какие материалы я получу?", callback_data="question_5")
-    markup.add(btn_q1, btn_q2, btn_q3, btn_q4, btn_q5)
+    markup.add(btn_q1, btn_q2)
+    markup.add(btn_q3, btn_q4)
+    markup.add(btn_q5)
 
-    bot.send_message(call.message.chat.id, "Выберите ваш вопрос:", reply_markup=markup)
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                          text="Выберите ваш вопрос:", reply_markup=markup)
 
 
 # Обработчик ответов на вопросы
@@ -91,11 +95,12 @@ def handle_questions(call):
 def handle_courses(call):
     # Отправляем список курсов
     markup = types.InlineKeyboardMarkup()
-    btn_ds = types.InlineKeyboardButton("Data Science", callback_data="course_ds")
-    btn_da = types.InlineKeyboardButton("Data Analytics", callback_data="course_da")
+    btn_ds = types.InlineKeyboardButton("🧪 Data Science", callback_data="course_ds")
+    btn_da = types.InlineKeyboardButton("📊 Data Analytics", callback_data="course_da")
     markup.add(btn_ds, btn_da)
 
-    bot.send_message(call.message.chat.id, "Выберите курс:", reply_markup=markup)
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                          text="Выберите курс:", reply_markup=markup)
 
 
 # Обработчик выбора курса
@@ -113,11 +118,13 @@ def handle_selected_course(call):
         bot.send_photo(call.message.chat.id, open("Resources/dataAnalysticsPhoto.jpeg", 'rb'))
         bot.send_video(call.message.chat.id, open("Resources/videoDataAnalystics.mp4", 'rb'))
 
+    # Добавляем небольшую задержку перед следующим сообщением для улучшения восприятия
+    time.sleep(1)
     bot.send_message(call.message.chat.id, f"Вы выбрали курс {course}. Вот немного информации о курсе.")
 
     # Кнопка "Оплатить"
     markup = types.InlineKeyboardMarkup()
-    btn_pay = types.InlineKeyboardButton("Оплатить", callback_data="pay")
+    btn_pay = types.InlineKeyboardButton("💳 Оплатить", callback_data="pay")
     markup.add(btn_pay)
     bot.send_message(call.message.chat.id, "Если хотите купить этот курс, нажмите 'Оплатить'.", reply_markup=markup)
 
@@ -138,7 +145,7 @@ def handle_payment(call):
     else:
         price = "20,000 тг"  # Значение по умолчанию
 
-    bot.send_message(call.message.chat.id, f"Стоимость курса: {price}. Курс был оплачен. Спасибо!")
+    bot.send_message(call.message.chat.id, f"💵 Стоимость курса: {price}. Курс был оплачен. Спасибо!")
 
 
 # Запуск бота
