@@ -147,5 +147,6 @@ def handle_payment(call):
     bot.send_message(call.message.chat.id, f"💵 Стоимость курса: {price}. Курс был оплачен. Спасибо!")
 
 
-
+bot.delete_webhook()
 bot.polling(none_stop=True)
+
