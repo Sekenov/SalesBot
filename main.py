@@ -2,31 +2,30 @@ import telebot
 from telebot import types
 import time
 
-# Создаем экземпляр бота
+
 bot = telebot.TeleBot('8077962203:AAHHndkIuMJz__r2nOimrh2CGG8vS8OLCDo')
 
-# Словарь для хранения данных пользователей
+
 user_data = {}
 
 
-# Обработчик команды /start
+
 @bot.message_handler(commands=['start'])
 def start(message):
-    # Создаем кнопку "Start"
+
     markup = types.InlineKeyboardMarkup()
     btn_start = types.InlineKeyboardButton("🚀 Start", callback_data="start")
     markup.add(btn_start)
 
-    # Отправляем приветственное сообщение с кнопкой "Start"
+
     bot.send_message(message.chat.id,
                      "Привет! Я бот, который поможет вам выбрать курс и оформить оплату. Нажмите 'Start', чтобы начать.",
                      reply_markup=markup)
 
 
-# Обработчик нажатия на кнопку "Start"
 @bot.callback_query_handler(func=lambda call: call.data == "start")
 def handle_start(call):
-    # Приветствие и вопрос о стране
+
     markup = types.InlineKeyboardMarkup()
     btn_kz = types.InlineKeyboardButton("🇰🇿 Казахстан", callback_data="country_kz")
     btn_ru = types.InlineKeyboardButton("🇷🇺 Россия", callback_data="country_ru")
@@ -38,17 +37,17 @@ def handle_start(call):
                           reply_markup=markup)
 
 
-# Обработчик выбора страны
+
 @bot.callback_query_handler(func=lambda call: call.data.startswith("country_"))
 def handle_country(call):
     country_code = call.data.split("_")[1]
     countries = {"kz": "Казахстан", "ru": "Россия", "az": "Азербайджан"}
     country = countries.get(country_code, "Казахстан")
 
-    # Сохраняем страну пользователя
+
     user_data[call.message.chat.id] = {"country": country}
 
-    # Отправляем сообщение с информацией и кнопками "Вопросы" и "Перейти к курсам"
+
     markup = types.InlineKeyboardMarkup()
     btn_questions = types.InlineKeyboardButton("❓ Вопросы", callback_data="questions")
     btn_courses = types.InlineKeyboardButton("📚 Перейти к курсам", callback_data="courses")
@@ -59,7 +58,7 @@ def handle_country(call):
                           reply_markup=markup)
 
 
-# Обработчик кнопки "Вопросы"
+
 @bot.callback_query_handler(func=lambda call: call.data == "questions")
 def questions(call):
     # Создаем Inline кнопки с вопросами
@@ -77,7 +76,7 @@ def questions(call):
                           text="Выберите ваш вопрос:", reply_markup=markup)
 
 
-# Обработчик ответов на вопросы
+
 @bot.callback_query_handler(func=lambda call: call.data.startswith("question_"))
 def handle_questions(call):
     answers = {
@@ -90,10 +89,10 @@ def handle_questions(call):
     bot.send_message(call.message.chat.id, answers[call.data])
 
 
-# Обработчик нажатия на "Перейти к курсам"
+
 @bot.callback_query_handler(func=lambda call: call.data == "courses")
 def handle_courses(call):
-    # Отправляем список курсов
+
     markup = types.InlineKeyboardMarkup()
     btn_ds = types.InlineKeyboardButton("🧪 Data Science", callback_data="course_ds")
     btn_da = types.InlineKeyboardButton("📊 Data Analytics", callback_data="course_da")
@@ -103,14 +102,14 @@ def handle_courses(call):
                           text="Выберите курс:", reply_markup=markup)
 
 
-# Обработчик выбора курса
+
 @bot.callback_query_handler(func=lambda call: call.data.startswith("course_"))
 def handle_selected_course(call):
     course_code = call.data.split("_")[1]
     courses = {"ds": "Data Science", "da": "Data Analytics"}
     course = courses.get(course_code, "Data Science")
 
-    # Отправляем фото и видео о курсе
+
     if course == "Data Science":
         bot.send_photo(call.message.chat.id, open("Resources/dataSciencePhoto.jpeg", 'rb'))
         bot.send_video(call.message.chat.id, open("Resources/videoDataScience.mp4", 'rb'))
@@ -118,24 +117,24 @@ def handle_selected_course(call):
         bot.send_photo(call.message.chat.id, open("Resources/dataAnalysticsPhoto.jpeg", 'rb'))
         bot.send_video(call.message.chat.id, open("Resources/videoDataAnalystics.mp4", 'rb'))
 
-    # Добавляем небольшую задержку перед следующим сообщением для улучшения восприятия
+
     time.sleep(1)
     bot.send_message(call.message.chat.id, f"Вы выбрали курс {course}. Вот немного информации о курсе.")
 
-    # Кнопка "Оплатить"
+
     markup = types.InlineKeyboardMarkup()
     btn_pay = types.InlineKeyboardButton("💳 Оплатить", callback_data="pay")
     markup.add(btn_pay)
     bot.send_message(call.message.chat.id, "Если хотите купить этот курс, нажмите 'Оплатить'.", reply_markup=markup)
 
 
-# Обработчик нажатия на "Оплатить"
+
 @bot.callback_query_handler(func=lambda call: call.data == "pay")
 def handle_payment(call):
-    # Получение страны пользователя
+
     country = user_data.get(call.message.chat.id, {}).get("country", "Казахстан")
 
-    # В зависимости от страны показываем цену
+
     if country == "Казахстан":
         price = "20,000 тг"
     elif country == "Россия":
@@ -143,10 +142,10 @@ def handle_payment(call):
     elif country == "Азербайджан":
         price = "68 манат"
     else:
-        price = "20,000 тг"  # Значение по умолчанию
+        price = "20,000 тг"
 
     bot.send_message(call.message.chat.id, f"💵 Стоимость курса: {price}. Курс был оплачен. Спасибо!")
 
 
-# Запуск бота
+
 bot.polling(none_stop=True)
