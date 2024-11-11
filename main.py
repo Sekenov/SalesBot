@@ -91,13 +91,13 @@ async def handle_selected_course(call: CallbackQuery):
         if course == "Data Science":
             photo = FSInputFile("Resources/dataSciencePhoto.jpeg")
             video = FSInputFile("Resources/videoDataScience.mp4")
-            await bot.send_photo(call.message.chat.id, photo)
-            await bot.send_video(call.message.chat.id, video)
+            await bot.send_photo(chat_id=call.message.chat.id, photo=photo)
+            await bot.send_video(chat_id=call.message.chat.id, video=video)
         elif course == "Data Analytics":
             photo = FSInputFile("Resources/dataAnalysticsPhoto.jpeg")
             video = FSInputFile("Resources/videoDataAnalystics.mp4")
-            await bot.send_photo(call.message.chat.id, photo)
-            await bot.send_video(call.message.chat.id, video)
+            await bot.send_photo(chat_id=call.message.chat.id, photo=photo)
+            await bot.send_video(chat_id=call.message.chat.id, video=video)
     except FileNotFoundError:
         await call.message.answer("Извините, материалы для выбранного курса временно недоступны.")
 
