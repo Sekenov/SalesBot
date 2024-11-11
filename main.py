@@ -109,6 +109,7 @@ async def handle_selected_course(call: CallbackQuery):
     ])
     await call.message.answer("Если хотите купить этот курс, нажмите 'Оплатить'.", reply_markup=markup)
 
+
 # Обработчик оплаты
 @router.callback_query(F.data == "pay")
 async def handle_payment(call: CallbackQuery):
