@@ -1,7 +1,7 @@
 import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, InputFile
 from aiogram import F
 from aiogram import Router
 
@@ -89,15 +89,15 @@ async def handle_selected_course(call: CallbackQuery):
 
     try:
         if course == "Data Science":
-            with open("Resources/dataSciencePhoto.jpeg", 'rb') as photo:
-                await bot.send_photo(call.message.chat.id, photo)
-            with open("Resources/videoDataScience.mp4", 'rb') as video:
-                await bot.send_video(call.message.chat.id, video)
+            photo = InputFile("Resources/dataSciencePhoto.jpeg")
+            await bot.send_photo(call.message.chat.id, photo)
+            video = InputFile("Resources/videoDataScience.mp4")
+            await bot.send_video(call.message.chat.id, video)
         elif course == "Data Analytics":
-            with open("Resources/dataAnalysticsPhoto.jpeg", 'rb') as photo:
-                await bot.send_photo(call.message.chat.id, photo)
-            with open("Resources/videoDataAnalystics.mp4", 'rb') as video:
-                await bot.send_video(call.message.chat.id, video)
+            photo = InputFile("Resources/dataAnalysticsPhoto.jpeg")
+            await bot.send_photo(call.message.chat.id, photo)
+            video = InputFile("Resources/videoDataAnalystics.mp4")
+            await bot.send_video(call.message.chat.id, video)
     except FileNotFoundError:
         await call.message.answer("Извините, материалы для выбранного курса временно недоступны.")
 
