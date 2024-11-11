@@ -1,17 +1,22 @@
-from aiogram import Bot, Dispatcher, types, executor
 import asyncio
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters import Command
+from aiogram.types import CallbackQuery
+from aiogram import F
 import json
+from aiogram import Router
 
 API_TOKEN = '8077962203:AAHHndkIuMJz__r2nOimrh2CGG8vS8OLCDo'
 
 bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher()
+router = Router()
 
 # Хранение данных о пользователях в оперативной памяти
 user_data = {}
 
 # Обработчик команды /start
-@dp.message_handler(commands=['start'])
+@router.message(Command("start"))
 async def start(message: types.Message):
     markup = types.InlineKeyboardMarkup()
     btn_start = types.InlineKeyboardButton("🚀 Start", callback_data="start")
@@ -19,8 +24,8 @@ async def start(message: types.Message):
     await message.answer("Привет! Я бот, который поможет вам выбрать курс и оформить оплату. Нажмите 'Start', чтобы начать.", reply_markup=markup)
 
 # Обработчик callback для кнопки Start
-@dp.callback_query_handler(lambda call: call.data == "start")
-async def handle_start(call: types.CallbackQuery):
+@router.callback_query(F.data == "start")
+async def handle_start(call: CallbackQuery):
     markup = types.InlineKeyboardMarkup()
     btn_kz = types.InlineKeyboardButton("🇰🇿 Казахстан", callback_data="country_kz")
     btn_ru = types.InlineKeyboardButton("🇷🇺 Россия", callback_data="country_ru")
@@ -30,8 +35,8 @@ async def handle_start(call: types.CallbackQuery):
     await call.message.edit_text("Из какой вы страны? Это нужно, чтобы показать цену курса в вашей валюте.", reply_markup=markup)
 
 # Обработчик выбора страны
-@dp.callback_query_handler(lambda call: call.data.startswith("country_"))
-async def handle_country(call: types.CallbackQuery):
+@router.callback_query(F.data.startswith("country_"))
+async def handle_country(call: CallbackQuery):
     country_code = call.data.split("_")[1]
     countries = {"kz": "Казахстан", "ru": "Россия", "az": "Азербайджан"}
     country = countries.get(country_code, "Казахстан")
@@ -46,8 +51,8 @@ async def handle_country(call: types.CallbackQuery):
     await call.message.edit_text(f"Отлично, вы выбрали {country}. Если у вас есть вопросы, нажмите кнопку 'Вопросы'. Либо можете перейти к выбору курсов.", reply_markup=markup)
 
 # Обработчик вопросов
-@dp.callback_query_handler(lambda call: call.data == "questions")
-async def questions(call: types.CallbackQuery):
+@router.callback_query(F.data == "questions")
+async def questions(call: CallbackQuery):
     markup = types.InlineKeyboardMarkup()
     btn_q1 = types.InlineKeyboardButton("Точно ли вы скинете курс после оплаты?", callback_data="question_1")
     btn_q2 = types.InlineKeyboardButton("Как долго длится курс?", callback_data="question_2")
@@ -61,8 +66,8 @@ async def questions(call: types.CallbackQuery):
     await call.message.edit_text("Выберите ваш вопрос:", reply_markup=markup)
 
 # Обработчик ответов на вопросы
-@dp.callback_query_handler(lambda call: call.data.startswith("question_"))
-async def handle_questions(call: types.CallbackQuery):
+@router.callback_query(F.data.startswith("question_"))
+async def handle_questions(call: CallbackQuery):
     answers = {
         "question_1": "Да, сразу после оплаты вы получите доступ к курсу.",
         "question_2": "Курс длится 4 недели, включая все необходимые материалы и задания.",
@@ -73,8 +78,8 @@ async def handle_questions(call: types.CallbackQuery):
     await call.message.answer(answers[call.data])
 
 # Обработчик выбора курсов
-@dp.callback_query_handler(lambda call: call.data == "courses")
-async def handle_courses(call: types.CallbackQuery):
+@router.callback_query(F.data == "courses")
+async def handle_courses(call: CallbackQuery):
     markup = types.InlineKeyboardMarkup()
     btn_ds = types.InlineKeyboardButton("🧪 Data Science", callback_data="course_ds")
     btn_da = types.InlineKeyboardButton("📊 Data Analytics", callback_data="course_da")
@@ -83,8 +88,8 @@ async def handle_courses(call: types.CallbackQuery):
     await call.message.edit_text("Выберите курс:", reply_markup=markup)
 
 # Обработчик выбора конкретного курса
-@dp.callback_query_handler(lambda call: call.data.startswith("course_"))
-async def handle_selected_course(call: types.CallbackQuery):
+@router.callback_query(F.data.startswith("course_"))
+async def handle_selected_course(call: CallbackQuery):
     course_code = call.data.split("_")[1]
     courses = {"ds": "Data Science", "da": "Data Analytics"}
     course = courses.get(course_code, "Data Science")
@@ -105,8 +110,8 @@ async def handle_selected_course(call: types.CallbackQuery):
     await call.message.answer("Если хотите купить этот курс, нажмите 'Оплатить'.", reply_markup=markup)
 
 # Обработчик оплаты
-@dp.callback_query_handler(lambda call: call.data == "pay")
-async def handle_payment(call: types.CallbackQuery):
+@router.callback_query(F.data == "pay")
+async def handle_payment(call: CallbackQuery):
     country = user_data.get(call.message.chat.id, {}).get("country", "Казахстан")
 
     if country == "Казахстан":
@@ -121,5 +126,10 @@ async def handle_payment(call: types.CallbackQuery):
     await call.message.answer(f"💵 Стоимость курса: {price}. Курс был оплачен. Спасибо!")
 
 # Запуск бота
+async def main():
+    dp.include_router(router)
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dp.start_polling(bot)
+
 if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=True)
+    asyncio.run(main())
