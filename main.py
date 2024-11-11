@@ -87,12 +87,19 @@ async def handle_selected_course(call: CallbackQuery):
     courses = {"ds": "Data Science", "da": "Data Analytics"}
     course = courses.get(course_code, "Data Science")
 
-    if course == "Data Science":
-        await bot.send_photo(call.message.chat.id, open("Resources/dataSciencePhoto.jpeg", 'rb'))
-        await bot.send_video(call.message.chat.id, open("Resources/videoDataScience.mp4", 'rb'))
-    elif course == "Data Analytics":
-        await bot.send_photo(call.message.chat.id, open("Resources/dataAnalysticsPhoto.jpeg", 'rb'))
-        await bot.send_video(call.message.chat.id, open("Resources/videoDataAnalystics.mp4", 'rb'))
+    try:
+        if course == "Data Science":
+            with open("Resources/dataSciencePhoto.jpeg", 'rb') as photo:
+                await bot.send_photo(call.message.chat.id, photo)
+            with open("Resources/videoDataScience.mp4", 'rb') as video:
+                await bot.send_video(call.message.chat.id, video)
+        elif course == "Data Analytics":
+            with open("Resources/dataAnalysticsPhoto.jpeg", 'rb') as photo:
+                await bot.send_photo(call.message.chat.id, photo)
+            with open("Resources/videoDataAnalystics.mp4", 'rb') as video:
+                await bot.send_video(call.message.chat.id, video)
+    except FileNotFoundError:
+        await call.message.answer("Извините, материалы для выбранного курса временно недоступны.")
 
     await asyncio.sleep(1)
     await call.message.answer(f"Вы выбрали курс {course}. Вот немного информации о курсе.")
