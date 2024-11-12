@@ -15,17 +15,15 @@ bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 router = Router()
 
-# Хранение данных о пользователях в оперативной памяти
-user_data = {}
-
-
 # Обработчик команды /start
 @router.message(Command("start"))
 async def start(message: types.Message):
-    # Имитируем "печатает" через типичное ожидание
-    typing_duration = 10  # Время, которое бот "печатает" (в секундах)
-    await bot.send_chat_action(chat_id=message.chat.id, action="typing")
-    await asyncio.sleep(typing_duration)
+    # Отправка видео-кругляшка
+    video_circle_file = FSInputFile("Resources/hello.MP4")  # Путь к файлу с анимацией кругляшка
+    await bot.send_video(chat_id=message.chat.id, video=video_circle_file)  # Используем send_video для MP4 файла
+
+    # Устанавливаем небольшую задержку, чтобы "видео-кругляшок" был на экране некоторое время
+    await asyncio.sleep(12)  # Это время должно соответствовать длительности анимации
 
     # Отправка кнопки "Получить видеоурок"
     markup = types.InlineKeyboardMarkup(inline_keyboard=[
@@ -59,31 +57,26 @@ async def start(message: types.Message):
     ])
     await message.answer(final_text, reply_markup=markup)
 
-
 # Обработчик кнопки "Оплатить доступ"
 @router.callback_query(F.data == "pay")
 async def handle_payment(call: CallbackQuery):
     await call.message.answer("Платежная система пока не реализована. Пожалуйста, подождите дальнейших обновлений.")
-
 
 # Обработчик кнопки "Подробнее о канале"
 @router.callback_query(F.data == "details")
 async def handle_details(call: CallbackQuery):
     await call.message.answer("Этот канал посвящен системному анализу и улучшению вашего контента на YouTube.")
 
-
 # Обработчик кнопки "Задать вопрос"
 @router.callback_query(F.data == "ask_question")
 async def handle_question(call: CallbackQuery):
     await call.message.answer("Вы можете задать вопрос, написав нам напрямую в личные сообщения.")
-
 
 # Запуск бота
 async def main():
     dp.include_router(router)
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
-
 
 if __name__ == "__main__":
     asyncio.run(main())
