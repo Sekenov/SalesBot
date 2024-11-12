@@ -24,7 +24,7 @@ user_data = {}
 async def start(message: types.Message):
     # Имитируем "печатает" через типичное ожидание
     typing_duration = 10  # Время, которое бот "печатает" (в секундах)
-    await bot.send_chat_action(message.chat.id, action=types.ChatActions.TYPING)
+    await bot.send_chat_action(chat_id=message.chat.id, action="typing")
     await asyncio.sleep(typing_duration)
 
     # Отправка кнопки "Получить видеоурок"
@@ -47,7 +47,6 @@ async def start(message: types.Message):
         "- Созвоны с экспертами в своих нишах, которые зарабатывают более 500к$+ с ютуб\n"
         "- Лучшие Аі сервисы для упрощения работы с ютубом + расширения которыми мы пользуемся\n"
         "- Материалы для улучшения вашего контента\n"
-        
         "- Общий чат для общения\n"
         "- Бизнес-вечеринки в разных городах мира\n"
         "Присоединяйся"
@@ -55,7 +54,7 @@ async def start(message: types.Message):
 
     markup = types.InlineKeyboardMarkup(inline_keyboard=[
         [types.InlineKeyboardButton(text="💸 Оплатить доступ", callback_data="pay")],
-        [types.InlineKeyboardButton(text="📈 Подробнее о канале", callback_data="details")],
+        [types.InlineKeyboardButton(text="📊 Подробнее о канале", callback_data="details")],
         [types.InlineKeyboardButton(text="❤️ Задать вопрос", callback_data="ask_question")]
     ])
     await message.answer(final_text, reply_markup=markup)
