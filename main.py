@@ -90,7 +90,8 @@ async def handle_pay_card(call: CallbackQuery):
 # Обработчик кнопки "Назад"
 @router.callback_query(F.data == "back_to_details")
 async def handle_back_to_details(call: CallbackQuery):
-    await send_details_message(call)
+    await send_details_message(call.message.chat.id)
+
 
 # Обработчик кнопки "Задать вопрос"
 @router.callback_query(F.data == "ask_question")
