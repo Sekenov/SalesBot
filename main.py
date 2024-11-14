@@ -104,21 +104,16 @@ async def handle_back_to_details(call: CallbackQuery):
 
     markup = types.InlineKeyboardMarkup(inline_keyboard=[
         [types.InlineKeyboardButton(text="💸 Оплатить доступ", callback_data="pay")],
-        [types.InlineKeyboardButton(text="📊 Подробнее о канале", callback_data="details")],
-        [types.InlineKeyboardButton(text="❤️ Задать вопрос", callback_data="ask_question")]
+        [types.InlineKeyboardButton(text="📊 Подробнее о канале", url="https://t.me/c/2455787583/7")],
+        [types.InlineKeyboardButton(text="❤️ Задать вопрос", url="https://t.me/c/2455787583/2")]
     ])
     await call.message.edit_text(final_text, reply_markup=markup)
 
-# кнопки "Подробнее о канале"
-@router.callback_query(F.data == "details")
-async def handle_details(call: CallbackQuery):
-    await call.message.answer("Вы можете узнать больше, перейдя по ссылке:")
-    await call.message.answer("https://t.me/c/2455787583/7")
 # кнопки "Задать вопрос"
-@router.callback_query(F.data == "ask_question")
-async def handle_question(call: CallbackQuery):
-    await call.message.answer("Вы можете задать вопрос, написав нам перейдя по ссылке:")
-    await call.message.answer("https://t.me/c/2455787583/2")
+#@router.callback_query(F.data == "ask_question")
+#async def handle_question(call: CallbackQuery):
+ #   await call.message.answer("Вы можете задать вопрос, написав нам перейдя по ссылке:")
+ #   await call.message.answer("https://t.me/c/2455787583/2")
 
 # Запуск бота
 async def main():
