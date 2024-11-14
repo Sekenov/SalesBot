@@ -112,12 +112,13 @@ async def handle_back_to_details(call: CallbackQuery):
 # кнопки "Подробнее о канале"
 @router.callback_query(F.data == "details")
 async def handle_details(call: CallbackQuery):
-    await call.message.answer("Этот канал посвящен системному анализу и улучшению вашего контента на YouTube.")
-
+    await call.message.answer("Вы можете узнать больше, перейдя по ссылке:")
+    await call.message.answer("https://t.me/c/2455787583/7")
 # кнопки "Задать вопрос"
 @router.callback_query(F.data == "ask_question")
 async def handle_question(call: CallbackQuery):
-    await call.message.answer("Вы можете задать вопрос, написав нам напрямую в личные сообщения.")
+    await call.message.answer("Вы можете задать вопрос, написав нам перейдя по ссылке:")
+    await call.message.answer("https://t.me/c/2455787583/2")
 
 # Запуск бота
 async def main():
