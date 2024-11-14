@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery, FSInputFile
 from aiogram import F
 from aiogram import Router
 
-API_TOKEN = '8077962203:AAHHndkIuMJz__r2nOimrh2CGG8vS8OLCDo'
+API_TOKEN = 'YOUR_TELEGRAM_BOT_API_TOKEN'
 
 # Параметры, которые можно легко менять
 youtube_video_url = "https://www.youtube.com/watch?v=MunPNYumw6M"
@@ -30,6 +30,9 @@ async def start(message: types.Message):
         [types.InlineKeyboardButton(text="✅ Получить видеоурок", url=youtube_video_url)]
     ])
     await message.answer("Нажмите на кнопку, чтобы посмотреть видеоурок:", reply_markup=markup)
+
+    # Отправляем сообщение о том, что после просмотра видео продолжим
+    await message.answer("После просмотра видеоурока мы продолжим выбор курса. Не забудьте вернуться сюда, чтобы узнать больше!")
 
     # Устанавливаем таймер для отправки следующего сообщения
     await asyncio.sleep(video_duration)
