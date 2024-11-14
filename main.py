@@ -5,39 +5,39 @@ from aiogram.types import CallbackQuery, FSInputFile
 from aiogram import F
 from aiogram import Router
 
-API_TOKEN = 'YOUR_TELEGRAM_BOT_API_TOKEN'
+API_TOKEN = '8077962203:AAHHndkIuMJz__r2nOimrh2CGG8vS8OLCDo'
 
-# Параметры, которые можно легко менять
+
 youtube_video_url = "https://www.youtube.com/watch?v=MunPNYumw6M"
-video_duration = 120  # Длительность видео в секундах, которую можно менять
+video_duration = 120  # время видео обьяснение после которого отправлять сообщение
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 router = Router()
 
-# Обработчик команды /start
+#  /start
 @router.message(Command("start"))
 async def start(message: types.Message):
-    # Отправка видео-кругляшка
-    video_circle_file = FSInputFile("Resources/hello.MP4")  # Путь к файлу с анимацией кругляшка
-    await bot.send_video(chat_id=message.chat.id, video=video_circle_file)  # Используем send_video для MP4 файла
+    # видео отправляем
+    video_circle_file = FSInputFile("Resources/hello.MP4")
+    await bot.send_video(chat_id=message.chat.id, video=video_circle_file)  #send_video чтобы отправить видео
 
-    # Устанавливаем небольшую задержку, чтобы "видео-кругляшок" был на экране некоторое время
-    await asyncio.sleep(12)  # Это время должно соответствовать длительности анимации
+    # задержка перед сообщением
+    await asyncio.sleep(12)
 
-    # Отправка кнопки "Получить видеоурок"
+    #  кнопка "Получить видеоурок"
     markup = types.InlineKeyboardMarkup(inline_keyboard=[
         [types.InlineKeyboardButton(text="✅ Получить видеоурок", url=youtube_video_url)]
     ])
     await message.answer("Нажмите на кнопку, чтобы посмотреть видеоурок:", reply_markup=markup)
 
-    # Отправляем сообщение о том, что после просмотра видео продолжим
+    # сообщение о том, что после просмотра видео продолжим
     await message.answer("После просмотра видеоурока мы продолжим выбор курса. Не забудьте вернуться сюда, чтобы узнать больше!")
 
     # Устанавливаем таймер для отправки следующего сообщения
     await asyncio.sleep(video_duration)
 
-    # Сообщение после просмотра видео с тремя кнопками
+    # знакомства
     final_text = (
         "Что вас ждет:\n"
         "- Алгоритмы, стратегии и фишки по ютуб\n"
@@ -52,7 +52,7 @@ async def start(message: types.Message):
         "- Бизнес-вечеринки в разных городах мира\n"
         "Присоединяйся"
     )
-
+    # кнопки 3
     markup = types.InlineKeyboardMarkup(inline_keyboard=[
         [types.InlineKeyboardButton(text="💸 Оплатить доступ", callback_data="pay")],
         [types.InlineKeyboardButton(text="📊 Подробнее о канале", callback_data="details")],
@@ -60,7 +60,7 @@ async def start(message: types.Message):
     ])
     await message.answer(final_text, reply_markup=markup)
 
-# Обработчик кнопки "Оплатить доступ"
+# Кнопка "Оплатить доступ"
 @router.callback_query(F.data == "pay")
 async def handle_payment(call: CallbackQuery):
     payment_text = (
@@ -78,12 +78,12 @@ async def handle_payment(call: CallbackQuery):
     ])
     await call.message.edit_text(payment_text, reply_markup=markup)
 
-# Обработчик кнопки "Оплатить картой"
+# Кнопка "Оплатить картой"
 @router.callback_query(F.data == "pay_card")
 async def handle_pay_card(call: CallbackQuery):
     await call.message.answer("Этот способ оплаты пока не доступен. Пожалуйста, выберите другой способ оплаты.")
 
-# Обработчик кнопки "Назад"
+# Кнопка "Назад"
 @router.callback_query(F.data == "back_to_details")
 async def handle_back_to_details(call: CallbackQuery):
     # Сообщение с информацией "Что вас ждет"
@@ -109,12 +109,12 @@ async def handle_back_to_details(call: CallbackQuery):
     ])
     await call.message.edit_text(final_text, reply_markup=markup)
 
-# Обработчик кнопки "Подробнее о канале"
+# кнопки "Подробнее о канале"
 @router.callback_query(F.data == "details")
 async def handle_details(call: CallbackQuery):
     await call.message.answer("Этот канал посвящен системному анализу и улучшению вашего контента на YouTube.")
 
-# Обработчик кнопки "Задать вопрос"
+# кнопки "Задать вопрос"
 @router.callback_query(F.data == "ask_question")
 async def handle_question(call: CallbackQuery):
     await call.message.answer("Вы можете задать вопрос, написав нам напрямую в личные сообщения.")
