@@ -39,7 +39,6 @@ async def send_details_message(chat_id):
         [types.InlineKeyboardButton(text="❤️ Задать вопрос", url="https://t.me/c/2455787583/2")]
     ])
     await bot.send_message(chat_id, final_text, reply_markup=markup)
-
 # Обработчик команды /start
 @router.message(Command("start"))
 async def start(message: types.Message):
