@@ -4,6 +4,8 @@ from aiogram.filters import Command
 from aiogram.types import CallbackQuery, FSInputFile
 from aiogram import F
 from aiogram import Router
+import os
+import subprocess
 
 API_TOKEN = '8077962203:AAHHndkIuMJz__r2nOimrh2CGG8vS8OLCDo'
 
@@ -41,8 +43,25 @@ async def send_details_message(chat_id):
 # Обработчик команды /start
 @router.message(Command("start"))
 async def start(message: types.Message):
-    video_circle_file = FSInputFile("Resources/hello.MP4")
-    await bot.send_video(chat_id=message.chat.id, video=video_circle_file)
+    input_video = "C:/Users/temoh/PycharmProjects/ittalker/Resources/hello.mp4"
+    output_video = "C:/Users/temoh/PycharmProjects/ittalker/Resources/hello_converted.mp4"
+
+    # Преобразование видео в формат кругляшка с помощью FFmpeg, если выходное видео еще не существует
+    if not os.path.exists(output_video):
+        try:
+            ffmpeg_command = [
+                'ffmpeg', '-i', input_video, '-vf', 'scale=320:320:force_original_aspect_ratio=increase,crop=320:320', output_video
+            ]
+            subprocess.run(ffmpeg_command, check=True)
+            print(f"Видео сохранено: {output_video}")
+        except subprocess.CalledProcessError as e:
+            print(f"Ошибка при выполнении FFmpeg: {e}")
+            return
+
+    # Отправка кругляшка в Telegram
+    if os.path.exists(output_video):
+        video_circle_file = FSInputFile(output_video)
+        await bot.send_video_note(chat_id=message.chat.id, video_note=video_circle_file)
 
     await asyncio.sleep(12)
 
