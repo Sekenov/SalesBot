@@ -6,7 +6,6 @@ from aiogram import F
 from aiogram import Router
 import os
 import subprocess
-
 API_TOKEN = '7936044043:AAEx6DZbLVeafjfT-729Nh9oA-H2wvak2Io'
 
 youtube_video_url = "https://www.youtube.com/watch?v=MunPNYumw6M"
