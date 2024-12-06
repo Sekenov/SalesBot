@@ -11,11 +11,9 @@ API_TOKEN = '7936044043:AAEx6DZbLVeafjfT-729Nh9oA-H2wvak2Io'
 
 youtube_video_url = "https://www.youtube.com/watch?v=MunPNYumw6M"
 video_duration = 20
-
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 router = Router()
-
 # Функция для отправки сообщения "Что вас ждет"
 async def send_details_message(chat_id):
     final_text = (
